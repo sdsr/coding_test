@@ -1,102 +1,64 @@
 #include <iostream>
 #include <queue>
-#include <string>
-#include <unordered_set>
-
+#include <vector>
+#include <cstring> // memset 함수 사용
 using namespace std;
 
-int D(int);
+const int MAX = 10000;
+bool visited[MAX];
+int A, B;
 
-int S(int);
+int D(int n) {
+    return (2 * n) % 10000;
+}
 
-int L(int);
+int S(int n) {
+    return (n == 0) ? 9999 : n - 1;
+}
 
-int R(int);
+int L(int n) {
+    return (n % 1000) * 10 + n / 1000;
+}
 
-string bfs(int, int);
+int R(int n) {
+    return (n % 10) * 1000 + n / 10;
+}
+
+string bfs() {
+    memset(visited, false, sizeof(visited));
+    queue<pair<int, string>> q;
+    q.push({A, ""});
+    visited[A] = true;
+
+    while (!q.empty()) {
+        int current = q.front().first;
+        string operations = q.front().second;
+        q.pop();
+
+        if (current == B) return operations;
+
+        vector<pair<int, char>> next = {{D(current), 'D'}, {S(current), 'S'}, {L(current), 'L'}, {R(current), 'R'}};
+        
+        for (auto& [nxt, op] : next) {
+            if (!visited[nxt]) {
+                visited[nxt] = true;
+                q.push({nxt, operations + op});
+            }
+        }
+    }
+    return "";
+}
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
     int T;
     cin >> T;
-
-    for (int i = 0; i < T; i++) {
-        int start, target;
-        cin >> start >> target;
-        cout << bfs(start, target) << "\n";
+    while (T--) {
+        cin >> A >> B;
+        cout << bfs() << '\n';
     }
-
     return 0;
-}
-
-string bfs(int start, int target) {
-    queue<pair<int, string>> q;
-    unordered_set<int> visited;
-    q.emplace(start, "");
-    visited.insert(start);
-
-    while (!q.empty()) {
-        auto [cur, ops] = q.front();
-        q.pop();
-        if (cur == target) {
-            return ops;
-        }
-
-        int next;
-        next = D(cur);
-        if (visited.find(next) == visited.end()) {
-            q.push({next, ops + "D"});
-            visited.insert(next);
-        }
-        next = S(cur);
-        if (visited.find(next) == visited.end()) {
-            q.push({next, ops + "S"});
-            visited.insert(next);
-        }
-        next = L(cur);
-        if (visited.find(next) == visited.end()) {
-            q.push({next, ops + "L"});
-            visited.insert(next);
-        }
-        next = R(cur);
-        if (visited.find(next) == visited.end()) {
-            q.push({next, ops + "R"});
-            visited.insert(next);
-        }
-    }
-    return "ERROR";
-}
-
-int D(int input) {
-    input *= 2;
-    if (input < 10000)
-        return input;
-    else {
-        return input / 10000;
-    }
-}
-
-int S(int input) {
-    if (input == 0)
-        return 9999;
-    else
-        return input - 1;
-}
-
-int L(int input) {
-    string temp = to_string(input);
-    char c = temp[0];
-    temp.erase(0, 1);
-    temp += c;
-    return stoi(temp);
-}
-
-int R(int input) {
-    string temp = to_string(input);
-    if (temp.length() > 1) {
-        char lastChar = temp[temp.length() - 1];
-        temp.erase(temp.length() - 1);
-        temp = lastChar + temp;
-    }
-    return stoi(temp);
 }
